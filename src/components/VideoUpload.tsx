@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useWindowSize } from '../hooks/useWindowSize';
 
@@ -14,7 +14,13 @@ const VideoUpload = ({ title, description, variant }: VideoUploadProps) => {
     console.log(acceptedFiles);
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'video/mp4': ['.mp4'],
+      'video/quicktime': ['.mov'],
+    }
+  });
 
   const { width } = useWindowSize();
   const isMobile = width ? width < 768 : false;
