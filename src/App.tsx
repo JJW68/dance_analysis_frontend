@@ -25,8 +25,21 @@ const App = () => {
     setCurrentState('history');
   };
 
+  const appContainerStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    minHeight: '100vh',
+    background: 'linear-gradient(to bottom, #f0e6ff, #ffffff)',
+  };
+
+  const defaultContainerStyle = {
+      width: '100%',
+  }
+
   return (
-    <div className="App">
+    <div style={currentState === 'analyzing' ? appContainerStyle : defaultContainerStyle}>
       {currentState === 'home' && <HomePage onUpload={handleUpload} onShowHistory={handleShowHistory} />}
       {currentState === 'analyzing' && <Analyzing />}
       {currentState === 'results' && <AnalysisResults onBack={handleBackToHome} />}
