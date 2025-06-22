@@ -1,36 +1,19 @@
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
 import type { CSSProperties } from "react";
 import VideoUpload from "./VideoUpload.tsx";
-import Analyzing from "./Analyzing.tsx";
-import AnalysisResults from "./AnalysisResults.tsx";
 import { useWindowSize } from "../hooks/useWindowSize.ts";
 
 type Difficulty = 'Beginner' | 'Intermediate' | 'Advanced';
 
-const HomePage = () => {
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisComplete, setAnalysisComplete] = useState(false);
+interface HomePageProps {
+  onUpload: () => void;
+  onShowHistory: () => void;
+}
+
+const HomePage = ({ onUpload, onShowHistory }: HomePageProps) => {
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('Beginner');
   const { width } = useWindowSize();
   const isMobile = width ? width < 768 : false;
-
-  const handleAnalyzeClick = () => {
-    setIsAnalyzing(true);
-  };
-
-  const handleGoBack = () => {
-    setIsAnalyzing(false);
-    setAnalysisComplete(false);
-  };
-
-  useEffect(() => {
-    if (isAnalyzing && !analysisComplete) {
-      const timer = setTimeout(() => {
-        setAnalysisComplete(true);
-      }, 4000); // Same duration as the progress bar animation
-      return () => clearTimeout(timer);
-    }
-  }, [isAnalyzing, analysisComplete]);
 
   const pageStyle = {
     background: 'linear-gradient(to bottom, #f0e6ff, #ffffff)',
@@ -41,6 +24,7 @@ const HomePage = () => {
     padding: '4rem 2rem',
     fontFamily: 'system-ui, Avenir, Helvetica, Arial, sans-serif',
     color: '#374151',
+    position: 'relative' as const,
   };
 
   const headerStyle = {
@@ -182,101 +166,99 @@ const HomePage = () => {
     alignItems: 'center',
   };
 
-  if (analysisComplete) {
-    return <AnalysisResults onBack={handleGoBack} />;
-  }
+  const historyButtonStyle = {
+    position: 'absolute' as const,
+    top: '2rem',
+    right: '2rem',
+    background: '#fff',
+    color: '#6B7280',
+    padding: '0.5rem 1rem',
+    borderRadius: '9999px',
+    fontWeight: '600',
+    border: '1px solid #D1D5DB',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+  };
 
   return (
     <div style={pageStyle}>
-      {isAnalyzing ? (
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          flexGrow: 1
-        }}>
-          <Analyzing />
-        </div>
-      ) : (
-        <>
-          <header style={headerStyle}>
-            <div style={logoContainerStyle}>
-              <div style={logoBackgroundStyle}>
-                <svg
-                    style={{ width: '2.5rem', height: '2.5rem' }}
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" />
-                </svg>
-              </div>
-              <h1 style={{ fontFamily: "'Righteous', cursive", fontSize: '3.5rem', fontWeight: 400, letterSpacing: '0.05em' }}>DanceAI</h1>
-              <div style={starContainerStyle}>
-                <span>☆</span><span>☆</span><span>☆</span>
-              </div>
-            </div>
-            <p style={{ color: '#4B5563', fontSize: '1.125rem', maxWidth: '450px', margin: '0 auto' }}>
-              Upload your dance cover and the original to get AI-powered feedback with
-              precise pose analysis
-            </p>
-          </header>
-
-          <button style={freeTrialButtonStyle}>
-            <svg style={{width: '1rem', height: '1rem'}} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+      <button style={historyButtonStyle} onClick={onShowHistory}>
+        Previous Analyses
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{width: '1rem', height: '1rem'}}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </button>
+      <div style={headerStyle}>
+        <div style={logoContainerStyle}>
+          <div style={logoBackgroundStyle}>
+            <svg style={{ width: '2rem', height: '2rem' }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" />
             </svg>
-            Free trial • No signup required
-          </button>
-
-          <h2 style={sectionTitleStyle}>Choose your level of difficulty</h2>
-
-          <div style={difficultyContainerStyle}>
-            <div style={difficultyBoxStyle('Beginner')} onClick={() => setSelectedDifficulty('Beginner')}>
-              <div style={difficultyTitleStyle(selectedDifficulty === 'Beginner', 'Beginner')}>Beginner (More Forgiving)</div>
-              <div style={difficultyDescriptionStyle}>Great for beginners - only flags major differences</div>
-              <div style={difficultyThresholdStyle}>Threshold: 15.0°</div>
-            </div>
-            <div style={difficultyBoxStyle('Intermediate')} onClick={() => setSelectedDifficulty('Intermediate')}>
-              <div style={difficultyTitleStyle(selectedDifficulty === 'Intermediate', 'Intermediate')}>Intermediate (Balanced)</div>
-              <div style={difficultyDescriptionStyle}>Balanced analysis for most dancers</div>
-              <div style={difficultyThresholdStyle}>Threshold: 10.0°</div>
-            </div>
-            <div style={difficultyBoxStyle('Advanced')} onClick={() => setSelectedDifficulty('Advanced')}>
-              <div style={difficultyTitleStyle(selectedDifficulty === 'Advanced', 'Advanced')}>Advanced (Precise)</div>
-              <div style={difficultyDescriptionStyle}>For advanced dancers - catches subtle differences</div>
-              <div style={difficultyThresholdStyle}>Threshold: 5.0°</div>
-            </div>
           </div>
+          <h1 style={{ fontFamily: "'Righteous', cursive", fontSize: '3rem', margin: 0, color: '#4C1D95' }}>DanceAI</h1>
+          <div style={starContainerStyle}>
+              <span>☆</span><span>☆</span><span>☆</span>
+          </div>
+        </div>
+        
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 'normal', marginTop: '1rem' }}>
+          Upload your dance cover and the original to get AI-powered feedback with precise pose analysis
+        </h2>
 
-          <main style={mainStyle}>
-            <VideoUpload
-              title="Original Dance Video"
-              description="Upload the original choreography you're trying to learn"
-              variant="original"
-            />
-            <VideoUpload
-              title="Your Dance Cover"
-              description="Upload your attempt at the choreography for analysis"
-              variant="cover"
-            />
-          </main>
+        <button style={freeTrialButtonStyle}>
+          <svg style={{ width: '1.25rem', height: '1.25rem' }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5l-3 3m0 0l-3-3m3 3V3" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Free trial • No signup required
+        </button>
+      </div>
 
-          <footer style={footerStyle}>
-            <button style={analyzeButtonStyle} onClick={handleAnalyzeClick}>
-              <svg
-                style={{ width: '1.5rem', height: '1.5rem', marginRight: '0.5rem' }}
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" />
-              </svg>
-              Analyze My Dance
-            </button>
-          </footer>
-        </>
-      )}
+      <h3 style={sectionTitleStyle}>Choose your level of difficulty</h3>
+
+      <div style={difficultyContainerStyle}>
+          <div style={difficultyBoxStyle('Beginner')} onClick={() => setSelectedDifficulty('Beginner')}>
+              <h4 style={difficultyTitleStyle(selectedDifficulty === 'Beginner', 'Beginner')}>Beginner (More Forgiving)</h4>
+              <p style={difficultyDescriptionStyle}>Great for beginners - only flags major differences</p>
+              <p style={difficultyThresholdStyle}>Threshold: 15.0°</p>
+          </div>
+          <div style={difficultyBoxStyle('Intermediate')} onClick={() => setSelectedDifficulty('Intermediate')}>
+              <h4 style={difficultyTitleStyle(selectedDifficulty === 'Intermediate', 'Intermediate')}>Intermediate (Balanced)</h4>
+              <p style={difficultyDescriptionStyle}>Balanced analysis for most dancers</p>
+              <p style={difficultyThresholdStyle}>Threshold: 10.0°</p>
+          </div>
+          <div style={difficultyBoxStyle('Advanced')} onClick={() => setSelectedDifficulty('Advanced')}>
+              <h4 style={difficultyTitleStyle(selectedDifficulty === 'Advanced', 'Advanced')}>Advanced (Precise)</h4>
+              <p style={difficultyDescriptionStyle}>For advanced dancers - catches subtle differences</p>
+              <p style={difficultyThresholdStyle}>Threshold: 5.0°</p>
+          </div>
+      </div>
+  
+      <div style={mainStyle}>
+        <VideoUpload 
+          title="Original Dance Video"
+          description="Upload the source video from the artist"
+          variant="original"
+        />
+        <VideoUpload 
+          title="Your Dance Cover"
+          description="Upload your own performance to be analyzed"
+          variant="cover"
+        />
+      </div>
+
+    <footer style={footerStyle}>
+      <button style={analyzeButtonStyle} onClick={onUpload}>
+        <svg style={{ width: '1.5rem', height: '1.5rem' }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.037-.502.068-.75.097h-1.5c-.331 0-.658-.025-.968-.074L3 3.75l3.15-1.562C6.532 2.005 7.23 1.5 8.25 1.5c1.02 0 1.718.505 2.118 1.25L12 5.25v5.571a2.25 2.25 0 01-1.5 2.121l-3.5 .875m2.121 4.242-2.121 2.121a.375.375 0 00.53.53l2.121-2.121M12 3.104a2.25 2.25 0 011.5 2.121v5.571a2.25 2.25 0 001.5 2.121l3.5 .875-2.121 2.121a.375.375 0 01-.53.53L12 18.75m-3.5-3.5a2.25 2.25 0 00-3.182-3.182L3.75 12a2.25 2.25 0 003.182 3.182L12 18.75m3.5 3.5a2.25 2.25 0 003.182-3.182L20.25 12a2.25 2.25 0 00-3.182-3.182L12 18.75m0 0l-3.5 3.5" />
+        </svg>
+        Analyze your dance!
+      </button>
+    </footer>
     </div>
   );
 };

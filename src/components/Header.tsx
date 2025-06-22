@@ -101,13 +101,13 @@ const Header = ({ onBack, overallScore }: HeaderProps) => {
       <div style={actionsStyle}>
         {!isSmallScreen && (
           <>
-            <div style={freeAnalysesStyle}>Free Analyses: 1/2</div>
-            <button style={upgradeButtonStyle}>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{width: '1rem', height: '1rem'}}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5V21M5.25 10.5H18.75M18.75 10.5c0 3.314-2.686 6-6 6s-6-2.686-6-6m12 0c0-3.314-2.686-6-6-6S5.25 7.186 5.25 10.5" />
-              </svg>
-              Upgrade Pro
-            </button>
+        <div style={freeAnalysesStyle}>Free Analyses: 1/2</div>
+        <button style={upgradeButtonStyle}>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{width: '1rem', height: '1rem'}}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5V21M5.25 10.5H18.75M18.75 10.5c0 3.314-2.686 6-6 6s-6-2.686-6-6m12 0c0-3.314-2.686-6-6-6S5.25 7.186 5.25 10.5" />
+          </svg>
+          Upgrade Pro
+        </button>
           </>
         )}
       </div>

@@ -253,9 +253,9 @@ const VideoComparison = ({ selectedKeyframe, isFullScreen, onToggleFullScreen }:
             ) : (
               <>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style={{width: '1.25rem', height: '1.25rem'}}>
-                  <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.647c1.295.748 1.295 2.538 0 3.286L7.279 20.99c-1.25.72-2.779-.217-2.779-1.643V5.653z" clipRule="evenodd" />
-                </svg>
-                Play
+              <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.647c1.295.748 1.295 2.538 0 3.286L7.279 20.99c-1.25.72-2.779-.217-2.779-1.643V5.653z" clipRule="evenodd" />
+            </svg>
+            Play
               </>
             )}
           </button>
@@ -275,16 +275,16 @@ const VideoComparison = ({ selectedKeyframe, isFullScreen, onToggleFullScreen }:
 
       <div style={videoAreaStyle}>
         <div style={{position: 'relative'}}>
-            <div style={videoPlaceholderStyle}>
+        <div style={videoPlaceholderStyle}>
               {selectedKeyframe.originalPose && <PoseOverlay pose={selectedKeyframe.originalPose} width={450} height={253} variant="original" />}
             </div>
-            <div style={labelStyle}>Original</div>
+          <div style={labelStyle}>Original</div>
         </div>
         <div style={{position: 'relative'}}>
-            <div style={videoPlaceholderStyle}>
+        <div style={videoPlaceholderStyle}>
               {selectedKeyframe.userPose && <PoseOverlay pose={selectedKeyframe.userPose} width={450} height={253} variant="user" />}
             </div>
-            <div style={labelStyle}>Your Performance</div>
+          <div style={labelStyle}>Your Performance</div>
         </div>
       </div>
 

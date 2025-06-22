@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import VideoComparison from './VideoComparison';
 import Keyframes from './Keyframes';
@@ -29,6 +28,27 @@ const AnalysisResults = ({ onBack }: AnalysisResultsProps) => {
   const isMobile = width ? width < 768 : false;
 
   const overallScore = Math.round(keyframes.reduce((acc, kf) => acc + kf.score, 0) / keyframes.length);
+
+  useEffect(() => {
+    const newHistoryItem = {
+      id: new Date().toISOString() + Math.random(), // more unique id
+      date: new Date().toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      overallScore,
+      keyframes,
+    };
+
+    const existingHistory = JSON.parse(localStorage.getItem('danceAnalysisHistory') || '[]');
+    const updatedHistory = [newHistoryItem, ...existingHistory];
+    
+    // Limit to 10 most recent items to avoid filling up localStorage
+    localStorage.setItem('danceAnalysisHistory', JSON.stringify(updatedHistory.slice(0, 10)));
+  }, []); // Run only once when the component mounts
 
   const containerStyle = {
     background: 'linear-gradient(to bottom, #F9F7FF, #FFFFFF)',
