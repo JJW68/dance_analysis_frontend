@@ -118,6 +118,7 @@ const Keyframes = ({ keyframes, selectedKeyframe, onSelectKeyframe }: KeyframesP
     fontWeight: 'bold',
     fontSize: '1.125rem',
     marginBottom: '0.25rem',
+    color: '#374151', // Adding explicit color to ensure visibility
   };
 
   const keyframeScoreStyle = (score: number) => ({

@@ -130,7 +130,8 @@ const VideoComparison = ({ selectedKeyframe, isFullScreen, onToggleFullScreen }:
     alignItems: 'center',
     gap: '0.5rem',
     cursor: 'pointer',
-    fontWeight: '500'
+    fontWeight: '500',
+    color: '#374151' // Adding explicit color to ensure visibility
   };
 
   const playButtonStyle = {

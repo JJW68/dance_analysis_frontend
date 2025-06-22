@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import type { CSSProperties } from "react";
 import VideoUpload from "./VideoUpload.tsx";
 import { useWindowSize } from "../hooks/useWindowSize.ts";
@@ -12,6 +12,8 @@ interface HomePageProps {
 
 const HomePage = ({ onUpload, onShowHistory }: HomePageProps) => {
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('Beginner');
+  const [originalVideo, setOriginalVideo] = useState<File | null>(null);
+  const [coverVideo, setCoverVideo] = useState<File | null>(null);
   const { width } = useWindowSize();
   const isMobile = width ? width < 768 : false;
 
@@ -243,16 +245,26 @@ const HomePage = ({ onUpload, onShowHistory }: HomePageProps) => {
           title="Original Dance Video"
           description="Upload the source video from the artist"
           variant="original"
+          onFileUpload={(file) => setOriginalVideo(file)}
         />
         <VideoUpload 
           title="Your Dance Cover"
           description="Upload your own performance to be analyzed"
           variant="cover"
+          onFileUpload={(file) => setCoverVideo(file)}
         />
       </div>
 
     <footer style={footerStyle}>
-      <button style={analyzeButtonStyle} onClick={onUpload}>
+      <button 
+        style={{
+          ...analyzeButtonStyle,
+          opacity: (!originalVideo || !coverVideo) ? 0.5 : 1,
+          cursor: (!originalVideo || !coverVideo) ? 'not-allowed' : 'pointer',
+        }} 
+        onClick={originalVideo && coverVideo ? onUpload : undefined}
+        disabled={!originalVideo || !coverVideo}
+      >
         <svg style={{ width: '1.5rem', height: '1.5rem' }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.037-.502.068-.75.097h-1.5c-.331 0-.658-.025-.968-.074L3 3.75l3.15-1.562C6.532 2.005 7.23 1.5 8.25 1.5c1.02 0 1.718.505 2.118 1.25L12 5.25v5.571a2.25 2.25 0 01-1.5 2.121l-3.5 .875m2.121 4.242-2.121 2.121a.375.375 0 00.53.53l2.121-2.121M12 3.104a2.25 2.25 0 011.5 2.121v5.571a2.25 2.25 0 001.5 2.121l3.5 .875-2.121 2.121a.375.375 0 01-.53.53L12 18.75m-3.5-3.5a2.25 2.25 0 00-3.182-3.182L3.75 12a2.25 2.25 0 003.182 3.182L12 18.75m3.5 3.5a2.25 2.25 0 003.182-3.182L20.25 12a2.25 2.25 0 00-3.182-3.182L12 18.75m0 0l-3.5 3.5" />
         </svg>
