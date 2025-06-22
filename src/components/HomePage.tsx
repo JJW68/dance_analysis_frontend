@@ -1,7 +1,10 @@
-import React, { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { CSSProperties } from "react";
 import VideoUpload from "./VideoUpload.tsx";
 import { useWindowSize } from "../hooks/useWindowSize.ts";
+import DanceAnalysisIntegration from "./DanceAnalysisIntegration";
+import { AnalysisResult } from "../services/DanceAnalysisService";
+import { updateDifficulty } from "../api.ts";
 
 type Difficulty = 'Beginner' | 'Intermediate' | 'Advanced';
 
@@ -14,6 +17,27 @@ const HomePage = ({ onUpload, onShowHistory }: HomePageProps) => {
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('Beginner');
   const [originalVideo, setOriginalVideo] = useState<File | null>(null);
   const [coverVideo, setCoverVideo] = useState<File | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Check for analysis errors in localStorage when component mounts
+  useEffect(() => {
+    const analysisError = localStorage.getItem('analysisError');
+    if (analysisError) {
+      setError(analysisError);
+      localStorage.removeItem('analysisError');
+      setTimeout(() => setError(null), 8000); // Clear error after 8 seconds
+    }
+  }, []);
+
+  const handleDifficultyChange = useCallback(async (difficulty: Difficulty) => {
+    setSelectedDifficulty(difficulty);
+    try {
+      await updateDifficulty(difficulty);
+    } catch (error) {
+      console.error('Failed to sync difficulty with backend.');
+    }
+  }, []);
+
   const { width } = useWindowSize();
   const isMobile = width ? width < 768 : false;
 
@@ -147,21 +171,6 @@ const HomePage = ({ onUpload, onShowHistory }: HomePageProps) => {
     flexDirection: isMobile ? 'column' : 'row',
   };
 
-  const analyzeButtonStyle = {
-    background: 'linear-gradient(to right, #34D399, #8B5CF6)',
-    color: '#fff',
-    padding: '1rem 2rem',
-    borderRadius: '9999px',
-    fontWeight: 'bold',
-    border: 'none',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    fontSize: '1.125rem',
-    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-  };
-
   const footerStyle = {
     display: 'flex',
     flexDirection: 'column' as const,
@@ -223,17 +232,17 @@ const HomePage = ({ onUpload, onShowHistory }: HomePageProps) => {
       <h3 style={sectionTitleStyle}>Choose your level of difficulty</h3>
 
       <div style={difficultyContainerStyle}>
-          <div style={difficultyBoxStyle('Beginner')} onClick={() => setSelectedDifficulty('Beginner')}>
+          <div style={difficultyBoxStyle('Beginner')}onClick={() => handleDifficultyChange('Beginner')}>
               <h4 style={difficultyTitleStyle(selectedDifficulty === 'Beginner', 'Beginner')}>Beginner (More Forgiving)</h4>
               <p style={difficultyDescriptionStyle}>Great for beginners - only flags major differences</p>
               <p style={difficultyThresholdStyle}>Threshold: 15.0°</p>
           </div>
-          <div style={difficultyBoxStyle('Intermediate')} onClick={() => setSelectedDifficulty('Intermediate')}>
+          <div style={difficultyBoxStyle('Intermediate')} onClick={() => handleDifficultyChange('Intermediate')}>
               <h4 style={difficultyTitleStyle(selectedDifficulty === 'Intermediate', 'Intermediate')}>Intermediate (Balanced)</h4>
               <p style={difficultyDescriptionStyle}>Balanced analysis for most dancers</p>
               <p style={difficultyThresholdStyle}>Threshold: 10.0°</p>
           </div>
-          <div style={difficultyBoxStyle('Advanced')} onClick={() => setSelectedDifficulty('Advanced')}>
+          <div style={difficultyBoxStyle('Advanced')} onClick={() => handleDifficultyChange('Advanced')}>
               <h4 style={difficultyTitleStyle(selectedDifficulty === 'Advanced', 'Advanced')}>Advanced (Precise)</h4>
               <p style={difficultyDescriptionStyle}>For advanced dancers - catches subtle differences</p>
               <p style={difficultyThresholdStyle}>Threshold: 5.0°</p>
@@ -256,20 +265,35 @@ const HomePage = ({ onUpload, onShowHistory }: HomePageProps) => {
       </div>
 
     <footer style={footerStyle}>
-      <button 
-        style={{
-          ...analyzeButtonStyle,
-          opacity: (!originalVideo || !coverVideo) ? 0.5 : 1,
-          cursor: (!originalVideo || !coverVideo) ? 'not-allowed' : 'pointer',
-        }} 
-        onClick={originalVideo && coverVideo ? onUpload : undefined}
-        disabled={!originalVideo || !coverVideo}
-      >
-        <svg style={{ width: '1.5rem', height: '1.5rem' }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.037-.502.068-.75.097h-1.5c-.331 0-.658-.025-.968-.074L3 3.75l3.15-1.562C6.532 2.005 7.23 1.5 8.25 1.5c1.02 0 1.718.505 2.118 1.25L12 5.25v5.571a2.25 2.25 0 01-1.5 2.121l-3.5 .875m2.121 4.242-2.121 2.121a.375.375 0 00.53.53l2.121-2.121M12 3.104a2.25 2.25 0 011.5 2.121v5.571a2.25 2.25 0 001.5 2.121l3.5 .875-2.121 2.121a.375.375 0 01-.53.53L12 18.75m-3.5-3.5a2.25 2.25 0 00-3.182-3.182L3.75 12a2.25 2.25 0 003.182 3.182L12 18.75m3.5 3.5a2.25 2.25 0 003.182-3.182L20.25 12a2.25 2.25 0 00-3.182-3.182L12 18.75m0 0l-3.5 3.5" />
-        </svg>
-        Analyze your dance!
-      </button>
+      {error && (
+        <div style={{
+          padding: '0.75rem',
+          marginBottom: '1rem',
+          borderRadius: '0.5rem',
+          backgroundColor: '#FEE2E2',
+          color: '#B91C1C',
+          fontSize: '0.875rem',
+          fontWeight: '500',
+        }}>
+          {error}
+        </div>
+      )}
+      
+      <DanceAnalysisIntegration
+        originalVideo={originalVideo}
+        userVideo={coverVideo}
+        difficulty={selectedDifficulty}
+        onAnalysisStart={onUpload}
+        onAnalysisComplete={(results: AnalysisResult) => {
+          // Store results in localStorage for the analysis results page to use
+          localStorage.setItem('currentAnalysisResults', JSON.stringify(results));
+          onUpload(); // Transition to the analyzing/results state
+        }}
+        onAnalysisError={(errorMsg: string) => {
+          setError(errorMsg);
+          setTimeout(() => setError(null), 5000); // Clear error after 5 seconds
+        }}
+      />
     </footer>
     </div>
   );
