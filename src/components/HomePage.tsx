@@ -2,6 +2,7 @@ import React, { useState, useCallback } from "react";
 import type { CSSProperties } from "react";
 import VideoUpload from "./VideoUpload.tsx";
 import { useWindowSize } from "../hooks/useWindowSize.ts";
+import { updateDifficulty } from '../api';
 
 type Difficulty = 'Beginner' | 'Intermediate' | 'Advanced';
 
@@ -14,6 +15,16 @@ const HomePage = ({ onUpload, onShowHistory }: HomePageProps) => {
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('Beginner');
   const [originalVideo, setOriginalVideo] = useState<File | null>(null);
   const [coverVideo, setCoverVideo] = useState<File | null>(null);
+
+  const handleDifficultyChange = useCallback(async (difficulty: Difficulty) => {
+    setSelectedDifficulty(difficulty);
+    try {
+      await updateDifficulty(difficulty);
+    } catch (error) {
+      console.error('Failed to sync difficulty with backend.');
+    }
+  }, []);
+
   const { width } = useWindowSize();
   const isMobile = width ? width < 768 : false;
 
@@ -223,17 +234,17 @@ const HomePage = ({ onUpload, onShowHistory }: HomePageProps) => {
       <h3 style={sectionTitleStyle}>Choose your level of difficulty</h3>
 
       <div style={difficultyContainerStyle}>
-          <div style={difficultyBoxStyle('Beginner')} onClick={() => setSelectedDifficulty('Beginner')}>
+          <div style={difficultyBoxStyle('Beginner')} onClick={() => handleDifficultyChange('Beginner')}>
               <h4 style={difficultyTitleStyle(selectedDifficulty === 'Beginner', 'Beginner')}>Beginner (More Forgiving)</h4>
               <p style={difficultyDescriptionStyle}>Great for beginners - only flags major differences</p>
               <p style={difficultyThresholdStyle}>Threshold: 15.0°</p>
           </div>
-          <div style={difficultyBoxStyle('Intermediate')} onClick={() => setSelectedDifficulty('Intermediate')}>
+          <div style={difficultyBoxStyle('Intermediate')} onClick={() => handleDifficultyChange('Intermediate')}>
               <h4 style={difficultyTitleStyle(selectedDifficulty === 'Intermediate', 'Intermediate')}>Intermediate (Balanced)</h4>
               <p style={difficultyDescriptionStyle}>Balanced analysis for most dancers</p>
               <p style={difficultyThresholdStyle}>Threshold: 10.0°</p>
           </div>
-          <div style={difficultyBoxStyle('Advanced')} onClick={() => setSelectedDifficulty('Advanced')}>
+          <div style={difficultyBoxStyle('Advanced')}onClick={() => handleDifficultyChange('Advanced')}>
               <h4 style={difficultyTitleStyle(selectedDifficulty === 'Advanced', 'Advanced')}>Advanced (Precise)</h4>
               <p style={difficultyDescriptionStyle}>For advanced dancers - catches subtle differences</p>
               <p style={difficultyThresholdStyle}>Threshold: 5.0°</p>
