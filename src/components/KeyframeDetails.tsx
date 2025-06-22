@@ -1,14 +1,10 @@
-import React from 'react';
 import type { Keyframe } from '../types';
-import { useWindowSize } from '../hooks/useWindowSize';
 
 interface KeyframeDetailsProps {
   selectedKeyframe: Keyframe;
 }
 
 const KeyframeDetails = ({ selectedKeyframe }: KeyframeDetailsProps) => {
-  const { width } = useWindowSize();
-  const isMobile = width ? width < 768 : false;
 
   const cardStyle = {
     background: 'linear-gradient(to bottom, #F3E8FF, #FFFFFF)',
@@ -55,10 +51,17 @@ const KeyframeDetails = ({ selectedKeyframe }: KeyframeDetailsProps) => {
     alignItems: 'center',
   };
 
+  const getScoreColor = (score: number) => {
+    if (score >= 100) return '#10B981'; // Green for perfect score
+    if (score >= 90) return '#34D399'; // Light green for great scores
+    if (score >= 80) return '#F59E0B'; // Amber for good scores
+    return '#EF4444'; // Red for poor scores
+  };
+
   const scoreValueStyle = {
     fontSize: '1.5rem',
     fontWeight: 'bold',
-    color: '#F59E0B',
+    color: getScoreColor(selectedKeyframe.score),
   };
 
   const progressBarContainer = {
@@ -72,7 +75,7 @@ const KeyframeDetails = ({ selectedKeyframe }: KeyframeDetailsProps) => {
   const progressBarStyle = {
     height: '100%',
     width: `${selectedKeyframe.score}%`,
-    backgroundColor: '#F59E0B',
+    backgroundColor: getScoreColor(selectedKeyframe.score),
     borderRadius: '9999px',
   };
   

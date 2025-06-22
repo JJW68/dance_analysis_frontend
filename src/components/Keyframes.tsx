@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import type { Keyframe } from '../types';
 import { useWindowSize } from '../hooks/useWindowSize';
 
@@ -7,14 +7,6 @@ interface KeyframesProps {
   selectedKeyframe: Keyframe;
   onSelectKeyframe: (keyframe: Keyframe) => void;
 }
-
-const keyframesData = [
-  { id: 1, time: '2.5s' },
-  { id: 2, time: '5.2s' },
-  { id: 3, time: '8.1s' },
-  { id: 4, time: '12.3s' },
-  { id: 5, time: '15.8s' },
-];
 
 const Keyframes = ({ keyframes, selectedKeyframe, onSelectKeyframe }: KeyframesProps) => {
   const { width } = useWindowSize();
@@ -124,7 +116,10 @@ const Keyframes = ({ keyframes, selectedKeyframe, onSelectKeyframe }: KeyframesP
   const keyframeScoreStyle = (score: number) => ({
     fontSize: '1rem',
     fontWeight: '500',
-    color: score > 90 ? '#10B981' : (score > 80 ? '#F59E0B' : '#EF4444'),
+    color: score >= 100 ? '#10B981' : // Green for perfect score
+           score >= 90 ? '#34D399' : // Light green for great scores
+           score >= 80 ? '#F59E0B' : // Amber for good scores
+           '#EF4444', // Red for poor scores
   });
 
   const selectedIndex = keyframes.findIndex(kf => kf.id === selectedKeyframe.id);
