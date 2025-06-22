@@ -12,31 +12,16 @@ interface AnalysisResultsProps {
   onBack: () => void;
 }
 
-const generateRandomKeyframes = (): Keyframe[] => {
-  const keyframeCount = Math.floor(Math.random() * 5) + 4; // 4 to 8 keyframes
-  const keyframes: Keyframe[] = [];
-
-  for (let i = 0; i < keyframeCount; i++) {
-    const score = Math.floor(Math.random() * 41) + 60; // 60 to 100
-    const hasIssue = Math.random() > 0.4;
-    
-    keyframes.push({
-      id: i + 1,
-      time: parseFloat((i * 2.5 + Math.random()).toFixed(1)),
-      score: score,
-      issues: hasIssue ? 1 : 0,
-      suggestions: hasIssue 
-        ? [{ part: 'right arm', text: 'Raise your right arm slightly.' }]
-        : [],
-      originalPose: mockPose,
-      userPose: hasIssue ? mockUserPose : mockPose,
-    });
-  }
-  return keyframes;
-};
+const initialKeyframes: Keyframe[] = [
+  { id: 1, time: 2.5, score: 85, issues: 1, suggestions: [{ part: 'right arm', text: 'Raise your right arm 15° higher to match the original pose.' }], originalPose: mockPose, userPose: mockUserPose },
+  { id: 2, time: 5.1, score: 92, issues: 0, suggestions: [], originalPose: mockPose, userPose: mockPose },
+  { id: 3, time: 8.3, score: 78, issues: 2, suggestions: [{ part: 'left leg', text: 'Extend your left leg more fully.' }, { part: 'torso', text: 'Keep your torso upright.' }], originalPose: mockPose, userPose: mockUserPose },
+  { id: 4, time: 10.2, score: 95, issues: 0, suggestions: [], originalPose: mockPose, userPose: mockPose },
+  { id: 5, time: 12.8, score: 88, issues: 1, suggestions: [{ part: 'head', text: 'Angle your head slightly to the left by 5°.' }], originalPose: mockPose, userPose: mockUserPose },
+];
 
 const AnalysisResults = ({ onBack }: AnalysisResultsProps) => {
-  const [keyframes] = useState<Keyframe[]>(generateRandomKeyframes());
+  const [keyframes] = useState<Keyframe[]>(initialKeyframes);
   const [selectedKeyframe, setSelectedKeyframe] = useState<Keyframe>(keyframes[0]);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const { width } = useWindowSize();
@@ -45,6 +30,9 @@ const AnalysisResults = ({ onBack }: AnalysisResultsProps) => {
   const overallScore = Math.round(keyframes.reduce((acc, kf) => acc + kf.score, 0) / keyframes.length);
 
   useEffect(() => {
+    // Add a bit of randomness to the score to simulate different analysis results
+    const simulatedScore = Math.max(0, Math.min(100, overallScore + Math.floor(Math.random() * 20) - 10));
+
     const newHistoryItem = {
       id: new Date().toISOString() + Math.random(), // more unique id
       date: new Date().toLocaleString('en-US', {
@@ -54,7 +42,7 @@ const AnalysisResults = ({ onBack }: AnalysisResultsProps) => {
         hour: '2-digit',
         minute: '2-digit',
       }),
-      overallScore,
+      overallScore: simulatedScore,
       keyframes,
     };
 
