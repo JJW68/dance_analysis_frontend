@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useWindowSize } from '../hooks/useWindowSize';
 
@@ -6,13 +6,19 @@ interface VideoUploadProps {
   title: string;
   description: string;
   variant: 'original' | 'cover';
+  onFileUpload: (file: File | null) => void;
 }
 
-const VideoUpload = ({ title, description, variant }: VideoUploadProps) => {
+const VideoUpload = ({ title, description, variant, onFileUpload }: VideoUploadProps) => {
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    // Do something with the files
-    console.log(acceptedFiles);
-  }, []);
+    if (acceptedFiles && acceptedFiles.length > 0) {
+      const file = acceptedFiles[0];
+      setUploadedFile(file);
+      onFileUpload(file);
+    }
+  }, [onFileUpload]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -104,18 +110,33 @@ const VideoUpload = ({ title, description, variant }: VideoUploadProps) => {
       </header>
       <div {...getRootProps()} style={dropzoneStyle}>
         <input {...getInputProps()} />
-        <div style={dropzoneIconContainerStyle}>
-          <svg style={{ width: '2rem', height: '2rem' }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-          </svg>
-        </div>
-        {isDragActive ? (
-          <p>Drop the files here ...</p>
-        ) : (
+        {uploadedFile ? (
           <div>
-            <p style={{ fontWeight: 'bold', margin: '0 0 0.25rem 0' }}>Drop your video here</p>
-            <p style={{ fontSize: '0.875rem', color: '#6B7280', margin: 0 }}>or click to browse files</p>
+            <div style={dropzoneIconContainerStyle}>
+              <svg style={{ width: '2rem', height: '2rem' }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            </div>
+            <p style={{ fontWeight: 'bold', margin: '0 0 0.25rem 0' }}>File uploaded successfully</p>
+            <p style={{ fontSize: '0.875rem', color: '#6B7280', margin: 0 }}>{uploadedFile.name}</p>
+            <p style={{ fontSize: '0.75rem', color: '#9CA3AF', margin: '0.5rem 0 0 0' }}>Click or drop to replace</p>
           </div>
+        ) : (
+          <>
+            <div style={dropzoneIconContainerStyle}>
+              <svg style={{ width: '2rem', height: '2rem' }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+              </svg>
+            </div>
+            {isDragActive ? (
+              <p>Drop the files here ...</p>
+            ) : (
+              <div>
+                <p style={{ fontWeight: 'bold', margin: '0 0 0.25rem 0' }}>Drop your video here</p>
+                <p style={{ fontSize: '0.875rem', color: '#6B7280', margin: 0 }}>or click to browse files</p>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
